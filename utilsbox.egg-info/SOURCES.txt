@@ -5,4 +5,5 @@ utilsbox/utils.py
 utilsbox.egg-info/PKG-INFO
 utilsbox.egg-info/SOURCES.txt
 utilsbox.egg-info/dependency_links.txt
+utilsbox.egg-info/requires.txt
 utilsbox.egg-info/top_level.txt
