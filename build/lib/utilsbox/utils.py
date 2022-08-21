@@ -147,12 +147,56 @@ class Point:
     """This is a class to create a point object.
 
     Attributes:
-      x (float): The value of x coordinate.
-      y (float): The value of y coordinate.
+      pt (tuple): The tuple containing x and y coordinate of the point.
     """
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, pt):
+        self.x, self.y = pt
+
+
+class Points:
+    """This is a class for algebric operations on multiple points.
+    
+    Attributes:
+      pts (list): The list of points. Each point is a tuple containing x and y coordinate.
+    """
+    def __init__(self, pts):
+        self.pts = pts
+        
+    def are_collinear(self):
+        """This function checks if all the points lie on a same line or not.
+        
+        Returns:
+          bool: The boolean value to determine whether points are collinear or not.
+        """
+        pt1, pt2 = self.pts[:2]
+        pts_rest = self.pts[2:]
+        x1, y1 = pt1
+        x2, y2 = pt2
+        for pt in pts_rest:
+            x3, y3 = pt
+            if y3*(x2-x1) != (y2-y1)*(x3-x1)+y1*(x2-x1):
+                return False
+        return True
+    
+    def to_list(self):
+        """This function returns the list of the points where each point is a tuple
+        containing x and y coordinate.
+        
+        Returns:
+          list: The list of the points where each point is a tuple
+          containing x and y coordinate.
+        """
+        return self.pts
+    
+    def to_obj(self):
+        """This function returns the list of the points where each point is an object
+        of the Point class.
+        
+        Returns:
+          list: The list of the points where each point is an object
+          of the Point class.
+        """
+        return [Point(pt) for pt in self.pts]
 
 
 class Rectangles:
@@ -278,3 +322,9 @@ def list_files(dir_path="."):
       filter: The filter object containing all the files in the given directory path.
     """
     return filter(os.path.isfile, os.listdir(dir_path))
+
+
+def RGB2HEX(color):
+    return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
+
+
