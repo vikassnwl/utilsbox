@@ -328,3 +328,40 @@ def RGB2HEX(color):
     return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
 
 
+def vis_vis(response):
+    """This function visualizes the response returned by Vision API.
+    Just pass the response after converting into dictionary and
+    see the magic.
+
+    Args:
+      response (dict): A reponse dictionary returned by Vision API.
+
+    Returns:
+      None: Just prints the response in tree format.
+    """
+    pages = response["responses"][0]["fullTextAnnotation"]["pages"]
+    for pg, page in enumerate(pages):
+        tree_text_page = f'Page {pg}'
+        print(tree_text_page)
+
+        blocks = page["blocks"]
+        for b, block in enumerate(blocks):
+            tree_text_block = f'Block {b}'
+            tree_symbol_block = "└──" if b == len(blocks)-1 else "├──"
+            print(f'{tree_symbol_block} {tree_text_block}'.rjust(6+len(tree_text_block)))
+
+            paragraphs = block["paragraphs"]
+            for p, paragraph in enumerate(paragraphs):
+                tree_text_para = f'Paragraph {p}'
+                tree_symbol_block = "|" if b != len(blocks)-1 else ""
+                tree_symbol_para = "└──" if p == len(paragraphs)-1 else "├──"
+                print(tree_symbol_block.rjust(3)+f'{tree_symbol_para} {tree_text_para}'.rjust(9+len(tree_text_para)))
+
+                words = paragraph["words"]
+                for w, word in enumerate(words):
+                    text = "".join(map(lambda x: x["text"], word["symbols"]))
+                    tree_text_word = f'Word {w}: {text}'
+                    tree_symbol_word = "└──" if w == len(words)-1 else "├──"
+                    tree_symbol_block = "|" if b != len(blocks)-1 else ""
+                    tree_symbol_para = "|" if p != len(paragraphs)-1 else ""
+                    print(tree_symbol_block.rjust(3)+tree_symbol_para.rjust(6)+f'{tree_symbol_word} {tree_text_word}'.rjust(9+len(tree_text_word)))
