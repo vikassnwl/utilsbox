@@ -3,6 +3,10 @@ import re
 import cv2
 import numpy as np
 import os
+import io
+import base64
+import requests
+import json
 
 
 
@@ -326,5 +330,135 @@ def list_files(dir_path="."):
 
 def RGB2HEX(color):
     return "#{:02x}{:02x}{:02x}".format(int(color[0]), int(color[1]), int(color[2]))
+
+
+def vis_vis(response):
+    """This function visualizes the response returned by Vision API.
+    Just pass the response after converting into dictionary and
+    see the magic.
+
+    Args:
+      response (dict): A reponse dictionary returned by Vision API.
+
+    Returns:
+      None: Just prints the response in tree format.
+    """
+    pages = response["responses"][0]["fullTextAnnotation"]["pages"]
+    for pg, page in enumerate(pages):
+        tree_text_page = f'Page {pg}'
+        print(tree_text_page)
+
+        blocks = page["blocks"]
+        for b, block in enumerate(blocks):
+            tree_text_block = f'Block {b}'
+            tree_symbol_block = "└──" if b == len(blocks)-1 else "├──"
+            print(f'{tree_symbol_block} {tree_text_block}'.rjust(6+len(tree_text_block)))
+
+            paragraphs = block["paragraphs"]
+            for p, paragraph in enumerate(paragraphs):
+                tree_text_para = f'Paragraph {p}'
+                tree_symbol_block = "|" if b != len(blocks)-1 else ""
+                tree_symbol_para = "└──" if p == len(paragraphs)-1 else "├──"
+                print(tree_symbol_block.rjust(3)+f'{tree_symbol_para} {tree_text_para}'.rjust(9+len(tree_text_para)))
+
+                words = paragraph["words"]
+                for w, word in enumerate(words):
+                    text = "".join(map(lambda x: x["text"], word["symbols"]))
+                    tree_text_word = f'Word {w}: {text}'
+                    tree_symbol_word = "└──" if w == len(words)-1 else "├──"
+                    tree_symbol_block = "|" if b != len(blocks)-1 else ""
+                    tree_symbol_para = "|" if p != len(paragraphs)-1 else ""
+                    print(tree_symbol_block.rjust(3)+tree_symbol_para.rjust(6)+f'{tree_symbol_word} {tree_text_word}'.rjust(9+len(tree_text_word)))
+
+
+def get_vision_api_response(img_pth, API_URL, save_to=None):
+    """This function reads the image from the given path and calls the Vision
+    API to get the recognized text as JSON response and converts into Python Dict
+    before returning it to the user.
+
+    Args:
+      img_pth (str): The path of the image to be sent to Vision API.
+      API_URL (str): The URL of the Vision API.
+      save_to (str, optional): The path where the response is to be saved as JSON.
+
+    Returns:
+      Dict: Python Dict having the response returned by Vision API.
+    """
+    # encode
+    img_bgr = cv2.imread(img_pth)
+    is_success, buffer = cv2.imencode(".jpg", img_bgr)
+    io_buf = io.BytesIO(buffer)
+
+    # # decode
+    # decode_img = cv2.imdecode(np.frombuffer(io_buf.getbuffer(), np.uint8), -1)
+
+    # converting image to base64
+    encoded_string = base64.b64encode(io_buf.read())
+    encoded_string = str(encoded_string)[2:-1]
+
+    # sending base64 string with request to Vision API
+    payload = {
+        "requests": [
+            {
+                "image": {"content": f"{encoded_string}"},
+                "features": [{"type": "DOCUMENT_TEXT_DETECTION"}],
+                "imageContext": {"languageHints": ["en-t-i0-handwrit"]}
+            }
+        ]
+    }
+
+    # sending post request and getting response object
+    r = requests.post(url=API_URL, data=str(payload))
+
+    data = json.loads(r.text)
+
+    if save_to: json.dump(data, open(save_to, "w"), indent=4)
+
+    return data
+
+
+
+class Dir:
+    """This class contains the methods that return the list of files and folders name in a
+    given directory path.
+
+    Attribures:
+      dir_pth (str): The path of the directory.
+    """
+    def __init__(self, dir_pth):
+        self.dir_pth = dir_pth
+
+    def all(self):
+        """This function returns the list of all the files and folders name in a directory.
+
+        Returns:
+          list: A list that contains the name of all files and folders.
+        """
+        return os.listdir(self.dir_pth)
+
+    def files(self, sort_by=None):
+        """This function returns the list of files name only in a directory.
+
+        Args:
+          sort_by (str, optional): The string to apply sorting based on it.
+            For example, if the argument passed is "num", it sorts the file names based
+            on the first group of continuous number characters present in file names.
+            If no argument is provided then it doesn't sort the file names.
+
+        Returns:
+          list: A list that contains the name of files only.
+        """
+        x = [*filter(lambda l: os.path.isfile(f"{self.dir_pth}/{l}"), os.listdir(self.dir_pth))]
+        if sort_by == "num":
+            x.sort(key=lambda l: int(re.findall('\d+', l)[0]))
+        return x
+
+    def dirs(self):
+        """This function returns the list of folders only in a directory.
+        
+        Returns:
+          list: A list that contains the name of folders only.
+        """
+        return [*filter(lambda l: os.path.isdir(f"{self.dir_pth}/{l}"), os.listdir(self.dir_pth))]
 
 

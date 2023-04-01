@@ -415,3 +415,50 @@ def get_vision_api_response(img_pth, API_URL, save_to=None):
     if save_to: json.dump(data, open(save_to, "w"), indent=4)
 
     return data
+
+
+
+class Dir:
+    """This class contains the methods that return the list of files and folders name in a
+    given directory path.
+
+    Attribures:
+      dir_pth (str): The path of the directory.
+    """
+    def __init__(self, dir_pth):
+        self.dir_pth = dir_pth
+
+    def all(self):
+        """This function returns the list of all the files and folders name in a directory.
+
+        Returns:
+          list: A list that contains the name of all files and folders.
+        """
+        return os.listdir(self.dir_pth)
+
+    def files(self, sort_by=None):
+        """This function returns the list of files name only in a directory.
+
+        Args:
+          sort_by (str, optional): The string to apply sorting based on it.
+            For example, if the argument passed is "num", it sorts the file names based
+            on the first group of continuous number characters present in file names.
+            If no argument is provided then it doesn't sort the file names.
+
+        Returns:
+          list: A list that contains the name of files only.
+        """
+        x = [*filter(lambda l: os.path.isfile(f"{self.dir_pth}/{l}"), os.listdir(self.dir_pth))]
+        if sort_by == "num":
+            x.sort(key=lambda l: int(re.findall('\d+', l)[0]))
+        return x
+
+    def dirs(self):
+        """This function returns the list of folders only in a directory.
+        
+        Returns:
+          list: A list that contains the name of folders only.
+        """
+        return [*filter(lambda l: os.path.isdir(f"{self.dir_pth}/{l}"), os.listdir(self.dir_pth))]
+
+
