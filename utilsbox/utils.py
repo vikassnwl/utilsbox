@@ -462,3 +462,39 @@ class Dir:
         return [*filter(lambda l: os.path.isdir(f"{self.dir_pth}/{l}"), os.listdir(self.dir_pth))]
 
 
+
+def rgb(img):
+    """This function takes grayscale or color image(BGR) and converts it into
+    RGB colorspace.
+
+    Args:
+      img (numpy.ndarray): An image in form of numpy array.
+
+    Returns:
+      numpy.ndarray: An image converted into RGB in form of numpy array.
+    """
+    if img.ndim == 2:
+        # IT'S A GRAYSCALE IMAGE
+        return cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+    else:
+        # IT'S A COLOR IMAGE
+        return img[..., ::-1]
+
+
+
+def bgr(img):
+    """This function takes grayscale or color image(RGB) and converts it into
+    BGR colorspace.
+
+    Args:
+      img (numpy.ndarray): An image in form of numpy array.
+
+    Returns:
+      numpy.ndarray: An image converted into BGR in form of numpy array.
+    """
+    if img.ndim == 2:
+        # IT'S A GRAYSCALE IMAGE
+        return cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    else:
+        # IT'S A COLOR IMAGE
+        return img[..., ::-1]
