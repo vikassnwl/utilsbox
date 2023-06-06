@@ -7,6 +7,8 @@ import io
 import base64
 import requests
 import json
+from bs4 import BeautifulSoup
+import boto3
 
 
 
@@ -498,3 +500,104 @@ def bgr(img):
     else:
         # IT'S A COLOR IMAGE
         return img[..., ::-1]
+
+
+
+class ImageDownloader123rf:
+    """The purpose of this class is to download free images from a site called 123rf.com.
+
+    Attributes:
+      None
+    """
+    def __init__(self):
+        pass
+
+    def download(self, search_term, num_images, output_dir=None):
+        """This function downloads the images.
+
+        Args:
+          search_term (str): The search term to download the images for. i.e "alcohol"
+          num_images (int): The number of images to download.
+          output_dir (str, optional): The path of the directory to download the images.
+            By default the images will be downloaded in a newly created folder having the name of
+            search_term argument.
+
+        Returns:
+          None
+        """
+        if not output_dir: output_dir = search_term
+        os.makedirs(output_dir, exist_ok=True)
+
+        num_images_to_download = num_images
+        num_images_per_page = 100
+
+        start_page_no = 1
+        end_page_no = (num_images_to_download + num_images_per_page - 1) // num_images_per_page
+
+        i = 0
+        for page_no in range(start_page_no, end_page_no+1):
+            url = f"https://www.123rf.com/stock-photo/{search_term}.html?page={page_no}"
+            response = requests.get(url)
+            soup = BeautifulSoup(response.content, "html.parser")
+            links = soup.find_all("a")
+            images_links = links[34:233:2]
+            images_urls = map(lambda l: l.img["src"], images_links)
+
+            for image_url in images_urls:
+                if not num_images_to_download: break
+                num_images_to_download -= 1
+                img_data = requests.get(image_url).content
+                dst = f"{output_dir}/{i}.jpg"
+                with open(dst, 'wb') as handler:
+                    handler.write(img_data)
+                i += 1
+
+
+
+class Bucket:
+    """This class contains attributes and methods to handle various operation on S3 buckets
+    in an easy way.
+
+    Attributes:
+      bucket_name (str): The name of the S3 bucket.
+    """
+    def __init__(self, bucket_name):
+        self.s3_client = boto3.client("s3")
+        self.s3_resource = boto3.resource("s3")
+        self.bucket_name = bucket_name
+        self.bucket = self.s3_resource.Bucket(bucket_name)
+
+    def get_file_cnt(self, prefix=""):
+        """This function count the total number of file in a given S3 prefix.
+
+        Args:
+          prefix (str, optional): This is the prefix to be considered for file count.
+
+        Returns:
+          int: The count of the files start with the given prefix.
+        """
+        cnt = 0
+        for object in self.bucket.objects.filter(Prefix=prefix):
+            if object.key.endswith("/"): continue
+            cnt += 1
+
+        return cnt
+    
+    def download(self, prefix=""):
+        """This function downloads the file from the S3 bucket.
+
+        Args:
+          prefix (str, optional): The prefix to be considered while downloading the file.
+
+        Returns:
+          None: Downloads the files without returning anything.
+        """
+        for object in self.bucket.objects.filter(Prefix=prefix):
+            if object.key.endswith("/"): continue
+            dir_pth, filename = os.path.split(object.key)
+            os.makedirs(dir_pth, exist_ok=True)
+            self.s3_client.download_file(
+                Bucket=self.bucket_name,
+                Key=object.key,
+                Filename=object.key
+            )
