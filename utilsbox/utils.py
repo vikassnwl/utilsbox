@@ -9,6 +9,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import boto3
+from google.cloud import storage
 
 
 
@@ -601,3 +602,28 @@ class Bucket:
                 Key=object.key,
                 Filename=object.key
             )
+
+
+
+################################################################################
+#######################  GOOGLE CLOUD PLATFORM  ################################
+################################################################################
+
+def get_blob_from_gs_uri(gs_uri, PROJECT_ID):
+    """This function takes object uri stored in google cloud and returns the blob
+    object to retrieve the file.
+
+    Args:
+      gs_uri (str): The uri of object stored in google cloud storage.
+      PROJECT_ID (str): The project id of google cloud platform.
+
+    Returns:
+      google.cloud.storage.blob.Blob: A google cloud storage blob object.
+    """
+    bucket_name = gs_uri.split("/")[2]
+    object_name = gs_uri.split("/")[3]
+    client = storage.Client(project=PROJECT_ID)
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+
+    return blob

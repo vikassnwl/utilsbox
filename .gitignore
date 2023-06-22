@@ -1,2 +1,4 @@
 env
 dist
+utilsbox/test/
+__pycache__/
