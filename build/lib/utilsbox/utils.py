@@ -9,6 +9,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import boto3
+from google.cloud import storage
 
 
 
@@ -601,3 +602,69 @@ class Bucket:
                 Key=object.key,
                 Filename=object.key
             )
+
+
+
+################################################################################
+#######################  GOOGLE CLOUD PLATFORM  ################################
+################################################################################
+
+def get_blob_from_gs_uri(gs_uri, PROJECT_ID):
+    """This function takes object uri stored in google cloud and returns the blob
+    object to retrieve the file.
+
+    Args:
+      gs_uri (str): The uri of object stored in google cloud storage.
+      PROJECT_ID (str): The project id of google cloud platform.
+
+    Returns:
+      google.cloud.storage.blob.Blob: A google cloud storage blob object.
+    """
+    bucket_name = gs_uri.split("/")[2]
+    object_name = gs_uri.split("/")[3]
+    client = storage.Client(project=PROJECT_ID)
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(object_name)
+
+    return blob
+    
+    
+
+def gen_importfile(input_folder_path, output_file_path):
+    """This function generates an importfile to be used for training in Vertex AI.
+
+    Args:
+      input_folder_path (str): The path of the folder containing training, validation and test folders
+        having annotation files in them.
+      output_file_path (str): The path where the generated importfile is to be saved.
+
+    Returns:
+      None: Saves the content to the jsonl importfile.
+    """
+
+    jsonl_output = ""
+
+    for folder in os.listdir(input_folder_path):
+        for filename in os.listdir(f"{input_folder_path}/{folder}"):
+
+            output = {"textSegmentAnnotations": []}
+
+            data = json.load(open(f"{input_folder_path}/{folder}/{filename}"))
+            data_annotations = data["annotations"]
+            full_text = data_annotations[0][0]
+            entities = data_annotations[0][1]["entities"]
+            
+            for startOffset, endOffset, displayName in entities:
+                child = {}
+                child["startOffset"] = startOffset
+                child["endOffset"] = endOffset
+                child["displayName"] = displayName
+
+                output["textSegmentAnnotations"].append(child)
+
+            output["textContent"] = full_text
+            output["dataItemResourceLabels"] = {"aiplatform.googleapis.com/ml_use": folder}
+
+            jsonl_output += json.dumps(output) + "\n"
+
+    open(output_file_path, "w").write(jsonl_output)
