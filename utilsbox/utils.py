@@ -10,6 +10,7 @@ import json
 from bs4 import BeautifulSoup
 import boto3
 from google.cloud import storage
+from azure.storage.blob import BlobClient
 
 
 
@@ -605,9 +606,9 @@ class Bucket:
 
 
 
-################################################################################
-#######################  GOOGLE CLOUD PLATFORM  ################################
-################################################################################
+##########################################################################
+#######################  CLOUD PLATFORMS  ################################
+##########################################################################
 
 def get_blob_from_gs_uri(gs_uri, PROJECT_ID):
     """This function takes object uri stored in google cloud and returns the blob
@@ -627,8 +628,37 @@ def get_blob_from_gs_uri(gs_uri, PROJECT_ID):
     blob = bucket.blob(object_name)
 
     return blob
+
+
+
+def get_blob_content_as_bytes(blob_url, access_key):
+    """This function returns a bytes object retrieved from the blob url 
+    uploaded on Azure blob container.
+
+    Args:
+      blob_url (str): The url of blob stored in Azure blob container.
+      access_key (str): The access key of Azure Storage Account.
+
+    Returns:
+      bytes: A bytes object.
+    """
+
+    # extracting blob_name, container_name and account_url from blob_url
+    url_split = blob_url.split("/")
+    blob_name = "/".join(url_split[4:])
+    container_name = url_split[3]
+    account_url = "/".join(url_split[:3])
+
+    blob = BlobClient(account_url=account_url,
+                    container_name=container_name,
+                    blob_name=blob_name,
+                    credential=access_key)
+
+    data = blob.download_blob()
+
+    return data.content_as_bytes()    
     
-    
+
 
 def gen_importfile(input_folder_path, output_file_path):
     """This function generates an importfile to be used for training in Vertex AI.
