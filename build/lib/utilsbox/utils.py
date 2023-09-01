@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import boto3
 from google.cloud import storage
 from azure.storage.blob import BlobClient
+from urllib.parse import unquote
 
 
 
@@ -642,6 +643,10 @@ def get_blob_content_as_bytes(blob_url, access_key):
     Returns:
       bytes: A bytes object.
     """
+
+    # decoding blob_url (If the container and blob names contain spaces then in the blob URL those spaces may
+    # be encoded as %20 which need to be decoded back to spaces)
+    blob_url = unquote(blob_url)
 
     # extracting blob_name, container_name and account_url from blob_url
     url_split = blob_url.split("/")

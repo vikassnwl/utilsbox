@@ -703,3 +703,45 @@ def gen_importfile(input_folder_path, output_file_path):
             jsonl_output += json.dumps(output) + "\n"
 
     open(output_file_path, "w").write(jsonl_output)
+
+
+
+def get_digit_cnt(n):
+    """This function returns the count of digits in an input number.
+
+    Args:
+      n (int): The input number that the digits need to be counted.
+    
+    Returns:
+      int: The count of digits in an input number.
+    """
+    cnt = 0
+    while n > 0:
+        n //= 10
+        cnt += 1
+    return cnt
+
+
+
+def enum(iterable, pad=True):
+    """This function is an extended version of the built-in enumerate function.
+    It provides an option to get the index as a 0 padded string to use as a suffix for
+    a filename.
+
+    Args:
+      iterable (sequence): The input sequence that the function operates on.
+        This can be list, tuple, or any other iterable containing elements.
+      pad (bool, optional): The boolean value that the type and value of the index depend on.
+        If True then the type will be str and the value will be 0 padded otherwise it will be an integer value.
+        Default is True.
+
+    Yields:
+      tuple: A tuple containing the index (int or str) and the item from the iterable.
+    """
+    l = get_digit_cnt(len(iterable)-1)
+    n = 0
+    for elem in iterable:
+        m = n
+        if pad: m = f"{m:0{l}}"
+        yield m, elem
+        n += 1
