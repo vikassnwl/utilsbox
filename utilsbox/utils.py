@@ -745,3 +745,31 @@ def enum(iterable, pad=True):
         if pad: m = f"{m:0{l}}"
         yield m, elem
         n += 1
+
+
+def dev_frm_mean(x: np.ndarray) -> np.ndarray:
+    # ARITHMETIC MEAN OF X
+    x_mean = x.mean()
+
+    # DEVIATION OF X FROM MEAN
+    x_dev = x-x_mean
+
+    return x_dev
+
+
+def cov(x: np.ndarray, y: np.ndarray) -> np.float64:
+    # DEVIATION OF X AND Y FROM MEAN
+    x_dev = dev_frm_mean(x)
+    y_dev = dev_frm_mean(y)
+
+    # COVARIANCE OF X AND Y
+    cov_x_y = (x_dev*y_dev).mean()
+
+    return cov_x_y
+
+
+def mad(x: np.ndarray) -> np.float64:
+    # MEAN ABSOLUTE DEVIATION OF X FROM MEAN
+    x_dev = np.abs(dev_frm_mean(x)).mean()
+
+    return x_dev
