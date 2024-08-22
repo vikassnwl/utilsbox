@@ -1,13 +1,13 @@
 Metadata-Version: 2.1
 Name: utilsbox
-Version: 0.0.19
+Version: 0.0.22
 Summary: Contains useful functions and classes
 Home-page: UNKNOWN
 Author: Vikas Sanwal
 Author-email: <vikassnwl@gmail.com>
 License: UNKNOWN
 Description: 
-        This package contains module named utils.py which contains useful functions and classes.
+        Custom Python package (🐍📦) for helper functions and classes.
         
 Keywords: python
 Platform: UNKNOWN

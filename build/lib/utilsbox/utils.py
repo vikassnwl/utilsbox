@@ -12,6 +12,7 @@ import boto3
 from google.cloud import storage
 from azure.storage.blob import BlobClient
 from urllib.parse import unquote
+import pandas as pd
 
 
 
@@ -703,3 +704,81 @@ def gen_importfile(input_folder_path, output_file_path):
             jsonl_output += json.dumps(output) + "\n"
 
     open(output_file_path, "w").write(jsonl_output)
+
+
+
+def get_digit_cnt(n):
+    """This function returns the count of digits in an input number.
+
+    Args:
+      n (int): The input number that the digits need to be counted.
+    
+    Returns:
+      int: The count of digits in an input number.
+    """
+    cnt = 0
+    while n > 0:
+        n //= 10
+        cnt += 1
+    return cnt
+
+
+
+def enum(iterable, pad=True):
+    """This function is an extended version of the built-in enumerate function.
+    It provides an option to get the index as a 0 padded string to use as a suffix for
+    a filename.
+
+    Args:
+      iterable (sequence): The input sequence that the function operates on.
+        This can be list, tuple, or any other iterable containing elements.
+      pad (bool, optional): The boolean value that the type and value of the index depend on.
+        If True then the type will be str and the value will be 0 padded otherwise it will be an integer value.
+        Default is True.
+
+    Yields:
+      tuple: A tuple containing the index (int or str) and the item from the iterable.
+    """
+    l = get_digit_cnt(len(iterable)-1)
+    n = 0
+    for elem in iterable:
+        m = n
+        if pad: m = f"{m:0{l}}"
+        yield m, elem
+        n += 1
+
+
+def dev_frm_mean(x: np.ndarray) -> np.ndarray:
+    # ARITHMETIC MEAN OF X
+    x_mean = x.mean()
+
+    # DEVIATION OF X FROM MEAN
+    x_dev = x-x_mean
+
+    return x_dev
+
+
+def cov(x: np.ndarray, y: np.ndarray) -> np.float64:
+    # DEVIATION OF X AND Y FROM MEAN
+    x_dev = dev_frm_mean(x)
+    y_dev = dev_frm_mean(y)
+
+    # COVARIANCE OF X AND Y
+    cov_x_y = (x_dev*y_dev).mean()
+
+    return cov_x_y
+
+
+def mad(x: np.ndarray) -> np.float64:
+    # MEAN ABSOLUTE DEVIATION OF X FROM MEAN
+    x_dev = np.abs(dev_frm_mean(x)).mean()
+
+    return x_dev
+
+
+def load_dataset(dataset_name):
+    if dataset_name == "housing":
+        url='https://drive.google.com/file/d/1rY5N_U9BWMAlahI4Mx7Dm3GrX0TrAxTO/view?usp=sharing'
+        url='https://drive.google.com/uc?id=' + url.split('/')[-2]
+        
+        return pd.read_csv(url)

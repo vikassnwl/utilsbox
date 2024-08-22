@@ -12,6 +12,7 @@ import boto3
 from google.cloud import storage
 from azure.storage.blob import BlobClient
 from urllib.parse import unquote
+import pandas as pd
 
 
 
@@ -773,3 +774,11 @@ def mad(x: np.ndarray) -> np.float64:
     x_dev = np.abs(dev_frm_mean(x)).mean()
 
     return x_dev
+
+
+def load_dataset(dataset_name):
+    if dataset_name == "housing":
+        url='https://drive.google.com/file/d/1rY5N_U9BWMAlahI4Mx7Dm3GrX0TrAxTO/view?usp=sharing'
+        url='https://drive.google.com/uc?id=' + url.split('/')[-2]
+        
+        return pd.read_csv(url)
