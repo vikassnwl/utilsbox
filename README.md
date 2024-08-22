@@ -1,1 +1,1 @@
-This package contains module named utils.py which contains useful functions and classes.
+Custom Python package (🐍📦) for helper functions and classes.
