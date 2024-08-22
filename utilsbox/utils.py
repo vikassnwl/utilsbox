@@ -13,6 +13,8 @@ from google.cloud import storage
 from azure.storage.blob import BlobClient
 from urllib.parse import unquote
 import pandas as pd
+import shutil
+import tensorflow as tf
 
 
 
@@ -782,3 +784,16 @@ def load_dataset(dataset_name):
         url='https://drive.google.com/uc?id=' + url.split('/')[-2]
         
         return pd.read_csv(url)
+
+
+def load_model(model_name):
+    if model_name == "mnist":
+        local_model_path = "mnist_model_cnn.zip"
+        if not os.path.exists("mnist_model_cnn"):
+            url='https://drive.google.com/file/d/1t_9vCszGsHQ_yITAFdlE_qkx3_gufpVa/view?usp=sharing'
+            url='https://drive.google.com/uc?id=' + url.split('/')[-2]
+            response = requests.get(url)
+            with open(local_model_path, "wb") as file:
+                file.write(response.content)
+            shutil.unpack_archive(local_model_path)
+        return tf.keras.models.load_model(local_model_path[:-4])

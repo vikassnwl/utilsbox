@@ -1,4 +1,6 @@
-env
-dist
+env/
+dist/
 utilsbox/test/
 __pycache__/
+build/
+utilsbox.egg-info/
