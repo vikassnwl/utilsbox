@@ -7,8 +7,17 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = '0.0.24'
+VERSION = '0.0.25'
 DESCRIPTION = 'Contains useful functions and classes'
+
+HYPHEN_E_DOT = "-e ."
+def get_requirements(file_path):
+    with open(file_path) as file_obj:
+        requirements = file_obj.readlines()
+        requirements = [req.replace("\n", "") for req in requirements]
+        if HYPHEN_E_DOT in requirements:
+            requirements.remove(HYPHEN_E_DOT)
+    return requirements
 
 # Setting up
 setup(
@@ -20,13 +29,7 @@ setup(
     long_description_content_type="text/markdown",
     long_description=long_description,
     packages=find_packages(),
-    install_requires=['scipy==1.8.0', 
-                      'opencv-contrib-python==4.7.0.72', 
-                      'boto3==1.26.3', 
-                      'requests==2.31.0', 
-                      'beautifulsoup4==4.12.2', 
-                      'google-cloud-storage==2.9.0',
-                      'azure-storage-blob==12.17.0'],
+    install_requires=get_requirements("requirements.txt"),
     keywords=['python'],
     classifiers=[
         "Development Status :: 1 - Planning",

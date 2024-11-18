@@ -16,6 +16,7 @@ import pandas as pd
 import shutil
 import tensorflow as tf
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 
 
@@ -862,3 +863,12 @@ def get_datetime_str():
     # Format the datetime string
     datetime_str = current_time.strftime("%Y%m%d_%H%M%S")
     return datetime_str
+
+
+def grid_plot(X, y, rows, cols):
+    fig, axes = plt.subplots(rows, cols, figsize=(cols*2, rows*2))
+    for i in range(len(X))[:rows*cols]:
+        ax = axes[i//cols][i%cols]
+        ax.set_title(y[i])
+        ax.imshow(X[i])
+    plt.tight_layout()

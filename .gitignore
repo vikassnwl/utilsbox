@@ -4,3 +4,4 @@ utilsbox/test/
 __pycache__/
 build/
 utilsbox.egg-info/
+test.py
