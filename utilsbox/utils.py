@@ -16,7 +16,8 @@ import pandas as pd
 import shutil
 import tensorflow as tf
 from datetime import datetime
-import matplotlib.pyplot as plt
+import random
+import gdown
 
 
 
@@ -865,10 +866,21 @@ def get_datetime_str():
     return datetime_str
 
 
-def grid_plot(X, y, rows, cols):
-    fig, axes = plt.subplots(rows, cols, figsize=(cols*2, rows*2))
-    for i in range(len(X))[:rows*cols]:
-        ax = axes[i//cols][i%cols]
-        ax.set_title(y[i])
-        ax.imshow(X[i])
-    plt.tight_layout()
+def set_global_seed(seed_value):
+    # Set random seed for Python's random module
+    random.seed(seed_value)
+    
+    # Set random seed for NumPy
+    np.random.seed(seed_value)
+    
+    # Set random seed for TensorFlow
+    tf.random.set_seed(seed_value)
+
+
+def download_model(model_url, model_path):
+    FILE_ID = model_url.split("/")[-2]
+    download_url = f"https://drive.google.com/uc?id={FILE_ID}&export=download"
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    if not os.path.exists(model_path):
+        gdown.download(download_url, model_path)
+    print(f"Model Downloaded Successfully to {model_path}!")
