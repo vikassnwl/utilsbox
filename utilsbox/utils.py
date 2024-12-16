@@ -880,7 +880,8 @@ def set_global_seed(seed_value):
 def download_model(model_url, model_path):
     FILE_ID = model_url.split("/")[-2]
     download_url = f"https://drive.google.com/uc?id={FILE_ID}&export=download"
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    model_dir = os.path.dirname(model_path)
+    if model_dir != "": os.makedirs(model_dir, exist_ok=True)
     if not os.path.exists(model_path):
         gdown.download(download_url, model_path)
     print(f"Model Downloaded Successfully to {model_path}!")
