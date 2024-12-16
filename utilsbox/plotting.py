@@ -49,3 +49,17 @@ def grid_plot(X, y=None, class_names=None, y_preds=None, scaling_factor=2.5, tot
             else:
                 ax.set_title(class_names[y[rand_idx].item()])
         ax.axis("off")
+
+
+def plot_metric(model_training_history, metric_name_1, metric_name_2, plot_name):
+    metric_value_1 = model_training_history.history[metric_name_1]
+    metric_value_2 = model_training_history.history[metric_name_2]
+    
+    epochs = range(len(metric_value_1))
+
+    plt.plot(epochs, metric_value_1, "blue", label=metric_name_1)
+    plt.plot(epochs, metric_value_2, "red", label=metric_name_2)
+
+    plt.title(str(plot_name))
+
+    plt.legend()
